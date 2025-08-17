@@ -1,0 +1,20 @@
+package com.urlShortner.Url_Shortner.services;
+
+import com.urlShortner.Url_Shortner.DTO.CreateNewUserRequest;
+import com.urlShortner.Url_Shortner.entity.User;
+import com.urlShortner.Url_Shortner.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UserService {
+    @Autowired
+    private UserRepository userRepository;
+
+    public void createNewUser(CreateNewUserRequest newUser){
+        User user = new User();
+        user.setUserName(newUser.getUserName());
+        user.setPassword(newUser.getPassword());
+        userRepository.save(user);
+    }
+}
