@@ -7,6 +7,8 @@ import com.urlShortner.Url_Shortner.repository.ShortUrlRepository;
 import com.urlShortner.Url_Shortner.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
@@ -39,14 +41,17 @@ public class UrlShortnerService {
         ); // default ~21 chars
     }
 
-    public String createNewShortId(String url, String name) {
+    public String createNewShortId(String url) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String name = authentication.getName();
         User user = userRepository.findByUserName(name)
                 .orElseThrow(() -> new UsernameNotFoundException("username note found" + name));
 
         String newShortId = generateShortCode();
-        ShortUrl newShortUrl = new ShortUrl();
-        newShortUrl.setMainUrl(url);
-        newShortUrl.setShortCode(newShortId);
+        ShortUrl newShortUrl = ShortUrl.builder()
+                .mainUrl(url)
+                .shortCode(newShortId)
+                .build();
         ShortUrl save = shortUrlRepository.save(newShortUrl);
         user.getUserShortUrls().add(save);
         userService.saveUser(user);

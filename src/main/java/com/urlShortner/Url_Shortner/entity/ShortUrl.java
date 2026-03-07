@@ -24,9 +24,11 @@ public class ShortUrl {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Builder.Default
+    private Long clicks = 0L;
+
     private String shortCode;
     private String mainUrl;
-    private Long clicks = 0L;
 
     @CreatedDate
     private LocalDateTime createdAt;
