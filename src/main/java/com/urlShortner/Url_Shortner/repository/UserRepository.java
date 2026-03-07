@@ -1,8 +1,11 @@
 package com.urlShortner.Url_Shortner.repository;
 
 import com.urlShortner.Url_Shortner.entity.User;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface UserRepository extends MongoRepository<User , ObjectId> {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUserName(String userName);
 }

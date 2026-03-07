@@ -7,6 +7,8 @@ import com.urlShortner.Url_Shortner.services.UrlShortnerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -40,8 +42,10 @@ public class UrlController {
         if (request.getMainUrl() == null || request.getMainUrl().isBlank()) {
             return ResponseEntity.badRequest().body("URL cannot be empty");
         }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String name = auth.getName();
 
-        String shortCode = urlShortnerService.createNewShortId(request.getMainUrl());
+        String shortCode = urlShortnerService.createNewShortId(request.getMainUrl() , name);
         String shortUrl = "http://localhost:3030/short-url/" + shortCode;
 
         return ResponseEntity.status(HttpStatus.CREATED).body(shortUrl);

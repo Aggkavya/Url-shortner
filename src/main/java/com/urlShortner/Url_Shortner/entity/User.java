@@ -1,41 +1,34 @@
 package com.urlShortner.Url_Shortner.entity;
 
-
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.util.Lazy;
-
+import jakarta.persistence.*;
+import lombok.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Document(collection = "user")
+@Entity
+@Table(name = "user")
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User {
     @Id
-    private ObjectId id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @NotBlank
-    @Indexed(unique = true)
+    @Column(nullable = false)
     private String userName;
 
-    @NotBlank
+    @Column(nullable = false)
     private String password;
-
-    @DBRef(lazy = true)
+    @Builder.Default
+    @OneToMany(cascade = CascadeType.ALL)
     private List<ShortUrl> userShortUrls = new ArrayList<>();
 
+    @Builder.Default
     private Set<String> roles = new HashSet<>();
 }
-

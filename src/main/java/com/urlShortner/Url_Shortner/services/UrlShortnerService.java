@@ -2,30 +2,34 @@ package com.urlShortner.Url_Shortner.services;
 
 import com.urlShortner.Url_Shortner.DTO.ShortUrlStatsResponse;
 import com.urlShortner.Url_Shortner.entity.ShortUrl;
-import com.urlShortner.Url_Shortner.repository.ShortUrlRepositroy;
+import com.urlShortner.Url_Shortner.entity.User;
+import com.urlShortner.Url_Shortner.repository.ShortUrlRepository;
+import com.urlShortner.Url_Shortner.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 @Service
 public class UrlShortnerService {
+
     @Autowired
-    private ShortUrlRepositroy shortUrlRepositroy;
+    private UserRepository userRepository;
+    @Autowired
+    private ShortUrlRepository shortUrlRepository;
+    @Autowired
+    private UserService userService;
 
-    public String getByShortId(String shortCode){
-        ShortUrl byShortId = shortUrlRepositroy.findByShortCode(shortCode).
-                orElseThrow(() -> new RuntimeException("short url not found"));
-        byShortId.setClicks(byShortId.getClicks()+1);
+    public String getByShortId(String shortCode) {
+        ShortUrl byShortId = shortUrlRepository.findByShortCode(shortCode)
+                .orElseThrow(() -> new RuntimeException("short url not found"));
+        byShortId.setClicks(byShortId.getClicks() + 1);
 
-        shortUrlRepositroy.save(byShortId);
+        shortUrlRepository.save(byShortId);
         return byShortId.getMainUrl();
 
     }
-
 
     private String generateShortCode() {
         return NanoIdUtils.randomNanoId(
@@ -34,19 +38,24 @@ public class UrlShortnerService {
                 8 // length of code
         ); // default ~21 chars
     }
-    public String createNewShortId(String url){
+
+    public String createNewShortId(String url, String name) {
+        User user = userRepository.findByUserName(name)
+                .orElseThrow(() -> new UsernameNotFoundException("username note found" + name));
+
         String newShortId = generateShortCode();
         ShortUrl newShortUrl = new ShortUrl();
         newShortUrl.setMainUrl(url);
         newShortUrl.setShortCode(newShortId);
-
-
-        shortUrlRepositroy.save(newShortUrl);
+        ShortUrl save = shortUrlRepository.save(newShortUrl);
+        user.getUserShortUrls().add(save);
+        userService.saveUser(user);
         return newShortUrl.getShortCode();
     }
-    public ShortUrlStatsResponse getStats(String shortId){
-        ShortUrl byShortCode = shortUrlRepositroy.findByShortCode(shortId).
-                orElseThrow(() -> new RuntimeException("no such url found"));
+
+    public ShortUrlStatsResponse getStats(String shortId) {
+        ShortUrl byShortCode = shortUrlRepository.findByShortCode(shortId)
+                .orElseThrow(() -> new RuntimeException("no such url found"));
         ShortUrlStatsResponse dto = new ShortUrlStatsResponse();
         dto.setClicks(byShortCode.getClicks());
         dto.setMainUrl(byShortCode.getMainUrl());
