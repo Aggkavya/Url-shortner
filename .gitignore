@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### macOS ###
+.DS_Store
+
+### Others ###
+*.log
+project_docs/

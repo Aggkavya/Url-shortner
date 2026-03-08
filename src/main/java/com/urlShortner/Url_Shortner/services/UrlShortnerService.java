@@ -48,6 +48,11 @@ public class UrlShortnerService {
                 .orElseThrow(() -> new UsernameNotFoundException("username note found" + name));
 
         String newShortId = generateShortCode();
+        shortUrlRepository.findByShortCode(newShortId)
+                .ifPresent(shortUrl -> {
+                    throw new RuntimeException("short url already exists");
+                });
+
         ShortUrl newShortUrl = ShortUrl.builder()
                 .mainUrl(url)
                 .shortCode(newShortId)
